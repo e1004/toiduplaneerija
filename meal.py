@@ -1,10 +1,10 @@
 import sqlite3
-from calendar import weekday
 from contextlib import closing
 from dataclasses import dataclass
 from typing import Optional
 
 from db import DB_NAME
+
 
 @dataclass
 class Meal:
@@ -33,11 +33,14 @@ def add_empty_meal(weekday: str, meal_type: str) -> Meal:
         connection.commit()
     return result
 
+
 def delete_meal(weekday: str, meal_type: str) -> Meal:
     with closing(sqlite3.connect(DB_NAME)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            result=cursor.execute(("DELETE FROM meal WHERE weekday = ? AND meal_type = ? RETURNING *"),
-            (weekday,meal_type),).fetchone()
+            result = cursor.execute(
+                ("DELETE FROM meal WHERE weekday = ? AND meal_type = ? RETURNING *"),
+                (weekday, meal_type),
+            ).fetchone()
         connection.commit()
     return result
