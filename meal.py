@@ -34,6 +34,21 @@ def add_empty_meal(weekday: str, meal_type: str) -> Meal:
     return result
 
 
+def update_meal_name(name: str, weekday: str, meal_type: str) -> Meal:
+    with closing(sqlite3.connect(DB_NAME)) as connection:
+        connection.row_factory = Meal.make
+        with closing(connection.cursor()) as cursor:
+            result = cursor.execute(
+                (
+                    "UPDATE meal SET name = ? WHERE weekday = ? AND meal_type = ?"
+                    "RETURNING *"
+                ),
+                (name, weekday, meal_type),
+            ).fetchone()
+        connection.commit()
+    return result
+
+
 def delete_meal(weekday: str, meal_type: str) -> Meal:
     with closing(sqlite3.connect(DB_NAME)) as connection:
         connection.row_factory = Meal.make
