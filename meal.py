@@ -23,7 +23,7 @@ class Meal:
 
 
 def add_empty_meal(weekday: str, meal_type: str) -> Meal:
-    with closing(sqlite3.connect(DB_NAME)) as connection:
+    with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
             result = cursor.execute(
@@ -35,7 +35,7 @@ def add_empty_meal(weekday: str, meal_type: str) -> Meal:
 
 
 def update_meal_name(name: str, weekday: str, meal_type: str) -> Meal:
-    with closing(sqlite3.connect(DB_NAME)) as connection:
+    with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
             result = cursor.execute(
@@ -50,7 +50,7 @@ def update_meal_name(name: str, weekday: str, meal_type: str) -> Meal:
 
 
 def delete_meal(weekday: str, meal_type: str) -> Meal:
-    with closing(sqlite3.connect(DB_NAME)) as connection:
+    with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
             result = cursor.execute(
