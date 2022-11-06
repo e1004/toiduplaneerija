@@ -6,7 +6,6 @@ from typing import Optional
 
 from db import DB_NAME
 
-
 @dataclass
 class Meal:
     name: Optional[str]
@@ -31,5 +30,14 @@ def add_empty_meal(weekday: str, meal_type: str) -> Meal:
                 ("INSERT INTO meal (weekday, meal_type) VALUES (?, ?)" "RETURNING *"),
                 (weekday, meal_type),
             ).fetchone()
+        connection.commit()
+    return result
+
+def delete_meal(weekday: str, meal_type: str) -> Meal:
+    with closing(sqlite3.connect(DB_NAME)) as connection:
+        connection.row_factory = Meal.make
+        with closing(connection.cursor()) as cursor:
+            result=cursor.execute(("DELETE FROM meal WHERE weekday = ? AND meal_type = ? RETURNING *"),
+            (weekday,meal_type),).fetchone()
         connection.commit()
     return result
