@@ -1,4 +1,3 @@
-import meal
 from test.db import TEST_DB_NAME
 
 import pytest
@@ -14,8 +13,8 @@ def use_test_db(db_connection, mocker: MockerFixture):
 
 def test_it_deletes_meal():
     # given
-    weekday="teisipäev"
-    meal_type="hommik"
+    weekday = "teisipäev"
+    meal_type = "hommik"
     any_meal = meal.add_empty_meal(weekday, meal_type)
 
     # when
@@ -24,10 +23,11 @@ def test_it_deletes_meal():
     # then
     assert result == any_meal
 
+
 def test_it_returns_none_for_missing_meal():
     # given
-    weekday="teisipäev"
-    meal_type="hommik"
+    weekday = "teisipäev"
+    meal_type = "hommik"
 
     # when
     result = meal.delete_meal(weekday, meal_type)
