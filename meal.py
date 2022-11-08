@@ -119,13 +119,18 @@ def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional
             if not existing_meal:
                 return None
             if existing_meal.ingredients is None:
-                return None
-            else:
-                if ingredient not in existing_meal.ingredients:
-                    return existing_meal
-                new_ingredients = existing_meal.ingredients.replace(
-                    INGREDIENT_SEPARATOR, ""
-                ).replace(ingredient, "")
+                return existing_meal
+            if ingredient not in existing_meal.ingredients:
+                return existing_meal
+
+            existing_ingredients = existing_meal.ingredients.split(INGREDIENT_SEPARATOR)
+            existing_ingredients.remove(ingredient)
+            new_ingredients: Optional[str] = INGREDIENT_SEPARATOR.join(
+                existing_ingredients
+            )
+
+            if new_ingredients == "":
+                new_ingredients = None
 
             result = cursor.execute(
                 (
