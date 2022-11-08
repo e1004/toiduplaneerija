@@ -59,3 +59,14 @@ def delete_meal(weekday: str, meal_type: str) -> Meal:
             ).fetchone()
         connection.commit()
     return result
+
+def read_all_meals() -> Meal:
+    with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
+        connection.row_factory = Meal.make
+        with closing(connection.cursor()) as cursor:
+            result=[]
+            result = result.append(cursor.execute(
+                ("SELECT weekday, meal_type FROM meal")
+            ).fetchall())
+        connection.commit()
+    return result
