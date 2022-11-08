@@ -118,12 +118,15 @@ def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional
             else:
                 if ingredient not in existing_meal.ingredients:
                     return existing_meal
-                new_ingredients = (
-                    existing_meal.ingredients + INGREDIENT_SEPARATOR + ingredient
-                )
+                new_ingredients = existing_meal.ingredients.replace(INGREDIENT_SEPARATOR,"").replace(ingredient,"")
+                
+    
 
             result = cursor.execute(
-                ("DELETE FROM ingredients WHERE name = ?",(ingredient,),"RETURNING *" ),
+                (
+                    "UPDATE meal SET ingredients = ? WHERE weekday = ? AND meal_type = ?"
+                    "RETURNING *"
+                ),
                 (new_ingredients, weekday, meal_type),
             ).fetchone()
         connection.commit()

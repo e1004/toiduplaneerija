@@ -24,7 +24,7 @@ def test_it_removes_ingredient():
     # then
     assert result == meal.Meal(
         name=None,
-        ingredients=None,
+        ingredients="",
         weekday=any_weekday,
         meal_type=any_meal_type,
     )
