@@ -5,6 +5,8 @@ from typing import Optional
 
 from db import DB_NAME
 
+INGREDIENT_SEPARATOR = "---separator---"
+
 
 @dataclass
 class Meal:
@@ -60,13 +62,69 @@ def delete_meal(weekday: str, meal_type: str) -> Meal:
         connection.commit()
     return result
 
-def read_all_meals() -> Meal:
+def read_all_meals() -> dict[tuple[str,str],Meal]:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
             result=[]
             result = result.append(cursor.execute(
-                ("SELECT weekday, meal_type FROM meal")
+                ("SELECT * FROM meal")
             ).fetchall())
+    return result
+
+def add_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Meal]:
+    with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
+        connection.row_factory = Meal.make
+        with closing(connection.cursor()) as cursor:
+            existing_meal: Meal = cursor.execute(
+                ("SELECT * FROM meal WHERE weekday = ? AND meal_type = ?"),
+                (weekday, meal_type),
+            ).fetchone()
+
+            if not existing_meal:
+                return None
+            if existing_meal.ingredients is None:
+                new_ingredients = ingredient
+            else:
+                if ingredient in existing_meal.ingredients:
+                    return existing_meal
+                new_ingredients = (
+                    existing_meal.ingredients + INGREDIENT_SEPARATOR + ingredient
+                )
+
+            result = cursor.execute(
+                (
+                    "UPDATE meal SET ingredients = ? WHERE weekday = ? AND meal_type = ?"
+                    "RETURNING *"
+                ),
+                (new_ingredients, weekday, meal_type),
+            ).fetchone()
+        connection.commit()
+    return result
+
+def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Meal]:
+    with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
+        connection.row_factory = Meal.make
+        with closing(connection.cursor()) as cursor:
+            existing_meal: Meal = cursor.execute(
+                ("SELECT * FROM meal WHERE weekday = ? AND meal_type = ?"),
+                (weekday, meal_type),
+            ).fetchone()
+
+            if not existing_meal:
+                return None
+            if existing_meal.ingredients is None:
+                return None
+            else:
+                if ingredient not in existing_meal.ingredients:
+                    return existing_meal
+                new_ingredients = (
+                    existing_meal.ingredients + INGREDIENT_SEPARATOR + ingredient
+                )
+
+            result = cursor.execute(
+                ("DELETE FROM ingredients WHERE name = ?",(ingredient,),"RETURNING *" ),
+                (new_ingredients, weekday, meal_type),
+            ).fetchone()
         connection.commit()
     return result
