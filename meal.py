@@ -28,7 +28,7 @@ def add_empty_meal(weekday: str, meal_type: str) -> Meal:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            result = cursor.execute(
+            result: Meal = cursor.execute(
                 ("INSERT INTO meal (weekday, meal_type) VALUES (?, ?)" "RETURNING *"),
                 (weekday, meal_type),
             ).fetchone()
@@ -36,11 +36,11 @@ def add_empty_meal(weekday: str, meal_type: str) -> Meal:
     return result
 
 
-def update_meal_name(name: str, weekday: str, meal_type: str) -> Meal:
+def update_meal_name(name: str, weekday: str, meal_type: str) -> Optional[Meal]:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            result = cursor.execute(
+            result: Optional[Meal] = cursor.execute(
                 (
                     "UPDATE meal SET name = ? WHERE weekday = ? AND meal_type = ?"
                     "RETURNING *"
@@ -51,11 +51,11 @@ def update_meal_name(name: str, weekday: str, meal_type: str) -> Meal:
     return result
 
 
-def delete_meal(weekday: str, meal_type: str) -> Meal:
+def delete_meal(weekday: str, meal_type: str) -> Optional[Meal]:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            result = cursor.execute(
+            result: Optional[Meal] = cursor.execute(
                 ("DELETE FROM meal WHERE weekday = ? AND meal_type = ? RETURNING *"),
                 (weekday, meal_type),
             ).fetchone()
@@ -80,7 +80,7 @@ def add_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Me
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            existing_meal: Meal = cursor.execute(
+            existing_meal: Optional[Meal] = cursor.execute(
                 ("SELECT * FROM meal WHERE weekday = ? AND meal_type = ?"),
                 (weekday, meal_type),
             ).fetchone()
@@ -96,7 +96,7 @@ def add_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Me
                     existing_meal.ingredients + INGREDIENT_SEPARATOR + ingredient
                 )
 
-            result = cursor.execute(
+            result: Optional[Meal] = cursor.execute(
                 (
                     "UPDATE meal SET ingredients = ? WHERE weekday = ? AND meal_type = ?"
                     "RETURNING *"
@@ -111,7 +111,7 @@ def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            existing_meal: Meal = cursor.execute(
+            existing_meal: Optional[Meal] = cursor.execute(
                 ("SELECT * FROM meal WHERE weekday = ? AND meal_type = ?"),
                 (weekday, meal_type),
             ).fetchone()
@@ -132,7 +132,7 @@ def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional
             if new_ingredients == "":
                 new_ingredients = None
 
-            result = cursor.execute(
+            result: Optional[Meal] = cursor.execute(
                 (
                     "UPDATE meal SET ingredients = ? WHERE weekday = ? AND meal_type = ?"
                     "RETURNING *"
