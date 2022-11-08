@@ -62,15 +62,19 @@ def delete_meal(weekday: str, meal_type: str) -> Meal:
         connection.commit()
     return result
 
-def read_all_meals() -> dict[tuple[str,str],Meal]:
+
+def read_all_meals() -> dict[tuple[str, str], Meal]:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
         with closing(connection.cursor()) as cursor:
-            result=[]
-            result = result.append(cursor.execute(
+            existing_meals: list[Meal] = cursor.execute(
                 ("SELECT * FROM meal")
-            ).fetchall())
+            ).fetchall()
+    result: dict[tuple[str, str], Meal] = {}
+    for meal in existing_meals:
+        result[(meal.weekday, meal.meal_type)] = meal
     return result
+
 
 def add_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Meal]:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
@@ -102,6 +106,7 @@ def add_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Me
         connection.commit()
     return result
 
+
 def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Meal]:
     with closing(sqlite3.connect(DB_NAME, uri=True)) as connection:
         connection.row_factory = Meal.make
@@ -118,9 +123,9 @@ def remove_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional
             else:
                 if ingredient not in existing_meal.ingredients:
                     return existing_meal
-                new_ingredients = existing_meal.ingredients.replace(INGREDIENT_SEPARATOR,"").replace(ingredient,"")
-                
-    
+                new_ingredients = existing_meal.ingredients.replace(
+                    INGREDIENT_SEPARATOR, ""
+                ).replace(ingredient, "")
 
             result = cursor.execute(
                 (
