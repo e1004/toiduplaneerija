@@ -6,6 +6,7 @@ from contextlib import closing
 from PyQt6.QtWidgets import QApplication, QMainWindow
 
 from app.db import CREATE_TABLE_MEAL, DB_NAME
+from app.views.meal_status import MealStatusView
 
 LOG = logging.getLogger(__file__)
 
@@ -22,6 +23,10 @@ if __name__ == "__main__":
     main_window = QMainWindow()
     main_window.setWindowTitle("Toiduplaan")
 
+    meal_status_view = MealStatusView()
+    meal_status_view.setParent(main_window)
+
+    main_window.setCentralWidget(meal_status_view)
     main_window.show()
 
     sys.exit(app.exec())
