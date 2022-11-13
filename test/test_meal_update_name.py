@@ -3,7 +3,7 @@ from test.db import TEST_DB_NAME
 import pytest
 from pytest_mock import MockerFixture
 
-import meal
+import app.meal as meal
 
 
 @pytest.fixture(autouse=True)
