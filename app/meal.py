@@ -3,7 +3,7 @@ from contextlib import closing
 from dataclasses import dataclass
 from typing import Optional
 
-from db import DB_NAME
+from app.db import DB_NAME
 
 INGREDIENT_SEPARATOR = "---separator---"
 

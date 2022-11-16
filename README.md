@@ -6,6 +6,7 @@ Installeeri välised moodulid:
 pip install -r requirements.txt
 ```
 
+- Käivita rakendus: `python -m app.start`
 - Käivita testid: `pytest`
 - Sorteeri impordid: `isort .`
 - Kontrolli importide sorteerimist: `isort . --check-only`

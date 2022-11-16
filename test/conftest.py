@@ -4,7 +4,7 @@ from test.db import TEST_DB_NAME
 
 import pytest
 
-from db import CREATE_TABLE_MEAL
+from app.db import CREATE_TABLE_MEAL
 
 
 @pytest.fixture
