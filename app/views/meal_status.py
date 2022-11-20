@@ -24,6 +24,7 @@ class MealStatusView(QWidget):
     def __init__(self):
         super().__init__()
         self.grid = QGridLayout()
+        self.weekday_and_type_to_meal = meal_repo.read_all_meals()
         self.setLayout(self.grid)
         self._show_weekday_names()
         self._show_meal_type_names()
@@ -40,13 +41,12 @@ class MealStatusView(QWidget):
             self.grid.addWidget(label, 0, i)
 
     def _show_meal_buttons(self):
-        weekday_and_type_to_meal = meal_repo.read_all_meals()
         for i in range(1, len(DAYS) + 1):
             weekday = DAYS[i - 1]
             for j in range(1, len(MEAL_TYPES) + 1):
                 meal_type = MEAL_TYPES[j - 1]
                 try:
-                    meal = weekday_and_type_to_meal[(weekday, meal_type)]
+                    meal = self.weekday_and_type_to_meal[(weekday, meal_type)]
                 except KeyError:
                     button = QPushButton("❌")
                 else:
@@ -62,4 +62,10 @@ class MealStatusView(QWidget):
         weekday = DAYS[row - 1]
         meal_type = MEAL_TYPES[column - 1]
         LOG.info("the button was pressed: %s, %s", weekday, meal_type)
+
+        if pressed_button.text() == "❌":
+            try:
+                self.weekday_and_type_to_meal[(weekday, meal_type)]
+            except KeyError:
+                meal_repo.add_empty_meal(weekday, meal_type)
         MealEditor(weekday, meal_type).exec()
