@@ -102,6 +102,7 @@ def test_button_opens_meal_editor(view: MealStatusView, qtbot, mocker: MockerFix
     editor_init.assert_called_once_with("esmaspäev", "hommik")
     exec.assert_called_once()
 
+
 @pytest.mark.usefixtures("use_test_db")
 def test_button_creates_missing_empty_meal(
     view: MealStatusView, qtbot, mocker: MockerFixture
@@ -124,6 +125,7 @@ def test_button_creates_missing_empty_meal(
     else:
         pytest.fail("expected empty meal in db")
 
+
 @pytest.mark.usefixtures("use_test_db")
 def test_button_does_not_create_empty_meal_for_existing_nameless_meal(
     qtbot, mocker: MockerFixture
@@ -143,4 +145,3 @@ def test_button_does_not_create_empty_meal_for_existing_nameless_meal(
 
     # then
     add_empty_meal.assert_not_called()
-
