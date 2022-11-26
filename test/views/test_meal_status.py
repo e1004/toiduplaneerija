@@ -1,9 +1,12 @@
+from sqlite3 import IntegrityError
 from test.db import TEST_DB_NAME
 
 import pytest
+from PyQt6.QtCore import Qt
 from pytest_mock import MockerFixture
 
 from app import meal
+from app.views.meal_editor_view import MealEditor
 from app.views.meal_status import DAYS, MEAL_TYPES, MealStatusView
 
 
@@ -84,3 +87,61 @@ def test_it_has_buttons_for_meals_with_names(qtbot):
 
     # then
     assert result == ["❌" for i in range(4)] + ["✅"] + ["❌" for i in range(23)]
+
+
+def test_button_opens_meal_editor(view: MealStatusView, qtbot, mocker: MockerFixture):
+    # given
+    button = view.grid.itemAtPosition(1, 1).widget()
+    editor_init = mocker.patch.object(MealEditor, "__init__", return_value=None)
+    exec = mocker.patch.object(MealEditor, "exec")
+
+    # when
+    qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
+
+    # then
+    editor_init.assert_called_once_with("esmaspäev", "hommik")
+    exec.assert_called_once()
+
+
+@pytest.mark.usefixtures("use_test_db")
+def test_button_creates_missing_empty_meal(
+    view: MealStatusView, qtbot, mocker: MockerFixture
+):
+    # given
+    button = view.grid.itemAtPosition(1, 1).widget()
+    mocker.patch.object(MealEditor, "__init__", return_value=None)
+    mocker.patch.object(MealEditor, "exec")
+    weekday = "esmaspäev"
+    meal_type = "hommik"
+
+    # when
+    qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
+
+    # then
+    try:
+        meal.add_empty_meal(weekday, meal_type)
+    except IntegrityError:
+        pass
+    else:
+        pytest.fail("expected empty meal in db")
+
+
+@pytest.mark.usefixtures("use_test_db")
+def test_button_does_not_create_empty_meal_for_existing_nameless_meal(
+    qtbot, mocker: MockerFixture
+):
+    # given
+    weekday = "esmaspäev"
+    meal_type = "hommik"
+    meal.add_empty_meal(weekday, meal_type)
+    view = MealStatusView()
+    button = view.grid.itemAtPosition(1, 1).widget()
+    mocker.patch.object(MealEditor, "__init__", return_value=None)
+    mocker.patch.object(MealEditor, "exec")
+    add_empty_meal = mocker.spy(meal, "add_empty_meal")
+
+    # when
+    qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
+
+    # then
+    add_empty_meal.assert_not_called()
