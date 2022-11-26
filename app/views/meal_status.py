@@ -65,7 +65,9 @@ class MealStatusView(QWidget):
 
         if pressed_button.text() == "❌":
             try:
-                self.weekday_and_type_to_meal[(weekday, meal_type)]
+                meal = self.weekday_and_type_to_meal[(weekday, meal_type)]
             except KeyError:
-                meal_repo.add_empty_meal(weekday, meal_type)
-        MealEditor(weekday, meal_type).exec()
+                meal = meal_repo.add_empty_meal(weekday, meal_type)
+        else:
+            meal = self.weekday_and_type_to_meal[(weekday, meal_type)]
+        MealEditor(weekday, meal_type, meal).exec()

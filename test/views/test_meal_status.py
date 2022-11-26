@@ -89,6 +89,7 @@ def test_it_has_buttons_for_meals_with_names(qtbot):
     assert result == ["❌" for i in range(4)] + ["✅"] + ["❌" for i in range(23)]
 
 
+@pytest.mark.usefixtures("use_test_db")
 def test_button_opens_meal_editor(view: MealStatusView, qtbot, mocker: MockerFixture):
     # given
     button = view.grid.itemAtPosition(1, 1).widget()
@@ -99,7 +100,11 @@ def test_button_opens_meal_editor(view: MealStatusView, qtbot, mocker: MockerFix
     qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
 
     # then
-    editor_init.assert_called_once_with("esmaspäev", "hommik")
+    editor_init.assert_called_once_with(
+        "esmaspäev",
+        "hommik",
+        meal.Meal(name=None, ingredients=None, weekday="esmaspäev", meal_type="hommik"),
+    )
     exec.assert_called_once()
 
 
@@ -133,10 +138,10 @@ def test_button_does_not_create_empty_meal_for_existing_nameless_meal(
     # given
     weekday = "esmaspäev"
     meal_type = "hommik"
-    meal.add_empty_meal(weekday, meal_type)
+    existing_meal = meal.add_empty_meal(weekday, meal_type)
     view = MealStatusView()
     button = view.grid.itemAtPosition(1, 1).widget()
-    mocker.patch.object(MealEditor, "__init__", return_value=None)
+    editor_init = mocker.patch.object(MealEditor, "__init__", return_value=None)
     mocker.patch.object(MealEditor, "exec")
     add_empty_meal = mocker.spy(meal, "add_empty_meal")
 
@@ -145,3 +150,27 @@ def test_button_does_not_create_empty_meal_for_existing_nameless_meal(
 
     # then
     add_empty_meal.assert_not_called()
+    editor_init.assert_called_once_with("esmaspäev", "hommik", existing_meal)
+
+
+@pytest.mark.usefixtures("use_test_db")
+def test_existing_meal_with_name_is_forwarded_to_meal_editor(
+    qtbot, mocker: MockerFixture
+):
+    # given
+    weekday = "esmaspäev"
+    meal_type = "hommik"
+    meal.add_empty_meal(weekday, meal_type)
+    existing_meal = meal.update_meal_name("any_name", weekday, meal_type)
+    view = MealStatusView()
+    button = view.grid.itemAtPosition(1, 1).widget()
+    editor_init = mocker.patch.object(MealEditor, "__init__", return_value=None)
+    mocker.patch.object(MealEditor, "exec")
+    add_empty_meal = mocker.spy(meal, "add_empty_meal")
+
+    # when
+    qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
+
+    # then
+    add_empty_meal.assert_not_called()
+    editor_init.assert_called_once_with("esmaspäev", "hommik", existing_meal)
