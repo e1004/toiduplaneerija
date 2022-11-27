@@ -104,6 +104,7 @@ def test_button_opens_meal_editor(view: MealStatusView, qtbot, mocker: MockerFix
         "esmaspäev",
         "hommik",
         meal.Meal(name=None, ingredients=None, weekday="esmaspäev", meal_type="hommik"),
+        parent=button,
     )
     exec.assert_called_once()
 
@@ -150,7 +151,9 @@ def test_button_does_not_create_empty_meal_for_existing_nameless_meal(
 
     # then
     add_empty_meal.assert_not_called()
-    editor_init.assert_called_once_with("esmaspäev", "hommik", existing_meal)
+    editor_init.assert_called_once_with(
+        "esmaspäev", "hommik", existing_meal, parent=button
+    )
 
 
 @pytest.mark.usefixtures("use_test_db")
@@ -173,4 +176,6 @@ def test_existing_meal_with_name_is_forwarded_to_meal_editor(
 
     # then
     add_empty_meal.assert_not_called()
-    editor_init.assert_called_once_with("esmaspäev", "hommik", existing_meal)
+    editor_init.assert_called_once_with(
+        "esmaspäev", "hommik", existing_meal, parent=button
+    )

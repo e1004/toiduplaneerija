@@ -70,4 +70,4 @@ class MealStatusView(QWidget):
                 meal = meal_repo.add_empty_meal(weekday, meal_type)
         else:
             meal = self.weekday_and_type_to_meal[(weekday, meal_type)]
-        MealEditor(weekday, meal_type, meal).exec()
+        MealEditor(weekday, meal_type, meal, parent=pressed_button).exec()
