@@ -43,9 +43,9 @@ class MealEditor(QDialog):
         self.save_name_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.save_name_button.clicked.connect(self.save_name)  # type: ignore
 
-        self.delete_name_button =QPushButton("Kustuta toidukord 🗑")
-        self.delete_name_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.delete_name_button.clicked.connect(self.delete_name)
+        self.delete_meal_button = QPushButton("Kustuta toidukord 🗑")
+        self.delete_meal_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.delete_meal_button.clicked.connect(self.delete_meal)  # type: ignore
 
         self.save_ingredients_button =QPushButton("Salvesta koostisosad 🛒")
         self.save_ingredients_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -58,8 +58,7 @@ class MealEditor(QDialog):
 
         lower_buttons_row.addWidget(self.save_name_button)
         lower_buttons_row.addWidget(self.save_ingredients_button)
-        lower_buttons_row.addWidget(self.delete_name_button)
-
+        lower_buttons_row.addWidget(self.delete_meal_button)
 
         self.layout.addLayout(lower_buttons_row)
 
@@ -71,15 +70,13 @@ class MealEditor(QDialog):
         LOG.info(f"save name pressed for {meal}")
         self.parent_button.setText("✅" if meal.name else "❌")
 
-    def delete_name(self):
-        meal_repo.delete_meal(
+    def delete_meal(self):
+        deleted_meal = meal_repo.delete_meal(
             weekday=self.weekday, meal_type=self.meal_type
         ) 
-        self.name_field.insert("")
         self.parent_button.setText("❌")
-        meal_repo.add_empty_meal(weekday=self.weekday, meal_type=self.meal_type)
-        LOG.info(f"deleted meal: {meal_repo}")
-        MealEditor.close(self)
+        LOG.info(f"deleted meal: {deleted_meal}")
+        self.close()
 
     def save_ingredients(self):
         global row_amount
