@@ -179,3 +179,22 @@ def test_existing_meal_with_name_is_forwarded_to_meal_editor(
     editor_init.assert_called_once_with(
         "esmaspäev", "hommik", existing_meal, parent=button
     )
+
+@pytest.mark.usefixtures("use_test_db")
+def test_it_reads_all_meals_after_closing_meal_editor(
+    qtbot, mocker: MockerFixture
+):
+    # given
+    weekday = "esmaspäev"
+    meal_type = "hommik"
+    meal.add_empty_meal(weekday, meal_type)
+    view = MealStatusView()
+    button = view.grid.itemAtPosition(1, 1).widget()
+    mocker.patch.object(MealEditor, "exec")
+    read_all_meals = mocker.spy(meal, "read_all_meals")
+
+    # when
+    qtbot.mouseClick(button, Qt.MouseButton.LeftButton)
+
+    # then
+    assert view.weekday_and_type_to_meal == read_all_meals.spy_return
