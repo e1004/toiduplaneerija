@@ -28,7 +28,7 @@ class MealEditor(QDialog):
         self.setLayout(self.layout)
 
         self.name_field = QLineEdit()
-        self.ingredient_field=QLineEdit()
+        self.ingredient_field = QLineEdit()
         if meal and meal.name:
             self.name_field.setText(meal.name)
         self.name_field.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -47,13 +47,13 @@ class MealEditor(QDialog):
         self.delete_meal_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.delete_meal_button.clicked.connect(self.delete_meal)  # type: ignore
 
-        self.save_ingredients_button =QPushButton("Salvesta koostisosad 🛒")
+        self.save_ingredients_button = QPushButton("Salvesta koostisosad 🛒")
         self.save_ingredients_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.save_ingredients_button.clicked.connect(self.save_ingredients)
+        self.save_ingredients_button.clicked.connect(self.save_ingredients)  # type: ignore
 
         self.add_row_button = QPushButton("+")
         self.add_row_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.add_row_button.clicked.connect(self.add_row)
+        self.add_row_button.clicked.connect(self.add_row)  # type: ignore
         lower_buttons_row.addWidget(self.add_row_button)
 
         lower_buttons_row.addWidget(self.save_name_button)
@@ -73,7 +73,7 @@ class MealEditor(QDialog):
     def delete_meal(self):
         deleted_meal = meal_repo.delete_meal(
             weekday=self.weekday, meal_type=self.meal_type
-        ) 
+        )
         self.parent_button.setText("❌")
         LOG.info(f"deleted meal: {deleted_meal}")
         self.close()
@@ -82,26 +82,27 @@ class MealEditor(QDialog):
         global row_amount
         try:
             for i in range(row_amount):
-                new_ingredient=self.ingredient_field.text()
+                new_ingredient = self.ingredient_field.text()
                 meal = meal_repo.add_ingredient(
-                    ingredient=new_ingredient, weekday=self.weekday, meal_type=self.meal_type
+                    ingredient=new_ingredient,
+                    weekday=self.weekday,
+                    meal_type=self.meal_type,
                 )
                 print(meal)
                 LOG.info(f"added ingredient: {new_ingredient}")
-                row_amount=0
+                row_amount = 0
         except:
-            row_amount=0
-    #Ei tea kuidas saada, et koostisosa jäävad nähtavale
+            row_amount = 0
 
+    # Ei tea kuidas saada, et koostisosa jäävad nähtavale
 
     def add_row(self):
         global row_amount
         try:
-            row_amount+=1
+            row_amount += 1
         except:
-            row_amount=1
-        self.ingredients= QFormLayout()
-        self.ingredients.addRow("Koostisosa "+str(row_amount)+":", QLineEdit())
+            row_amount = 1
+        self.ingredients = QFormLayout()
+        self.ingredients.addRow("Koostisosa " + str(row_amount) + ":", QLineEdit())
         self.layout.addLayout(self.ingredients)
         LOG.info(f"added row")
-

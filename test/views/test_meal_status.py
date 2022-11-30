@@ -180,10 +180,9 @@ def test_existing_meal_with_name_is_forwarded_to_meal_editor(
         "esmaspäev", "hommik", existing_meal, parent=button
     )
 
+
 @pytest.mark.usefixtures("use_test_db")
-def test_it_reads_all_meals_after_closing_meal_editor(
-    qtbot, mocker: MockerFixture
-):
+def test_it_reads_all_meals_after_closing_meal_editor(qtbot, mocker: MockerFixture):
     # given
     weekday = "esmaspäev"
     meal_type = "hommik"

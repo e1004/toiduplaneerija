@@ -34,7 +34,6 @@ class MealStatusView(QWidget):
         for i, day in enumerate(DAYS, start=1):
             self.grid.addWidget(QLabel(day.capitalize(), self), i, 0)
 
-
     def _show_meal_type_names(self):
         for i, meal_type in enumerate(MEAL_TYPES, start=1):
             label = QLabel(meal_type.capitalize(), self)

@@ -135,6 +135,7 @@ def test_it_sets_parent_status_to_green_given_new_name(qtbot, mocker: MockerFixt
     # then
     assert parent.text() == "✅"
 
+
 def test_it_deletes_meal_and_closes(qtbot, mocker: MockerFixture):
     # given
     weekday = "any_weekday"
@@ -152,4 +153,3 @@ def test_it_deletes_meal_and_closes(qtbot, mocker: MockerFixture):
     assert parent.text() == "❌"
     delete_meal.assert_called_once_with(weekday=weekday, meal_type=meal_type)
     editor_close.assert_called_once()
-
