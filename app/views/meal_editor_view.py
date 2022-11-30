@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QDialog,
     QFormLayout,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QVBoxLayout,
@@ -23,6 +24,7 @@ class MealEditor(QDialog):
         self.parent_button = parent
         self.weekday = weekday
         self.meal_type = meal_type
+        self.ingredients: dict[QPushButton, QHBoxLayout] = {}
         self.setWindowTitle(weekday.capitalize() + " " + meal_type)
         self.layout: QVBoxLayout = QVBoxLayout()  # type: ignore
         self.setLayout(self.layout)
@@ -37,7 +39,9 @@ class MealEditor(QDialog):
         self.input_form.addRow("Nimi: ", self.name_field)
 
         self.layout.addLayout(self.input_form)
-        lower_buttons_row = QHBoxLayout()
+        main_buttons_row = QHBoxLayout()
+        ingredient_button_row = QHBoxLayout()
+        self.ingredients_row = QFormLayout()
 
         self.save_name_button = QPushButton("Salvesta nimi 💾")
         self.save_name_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -51,16 +55,21 @@ class MealEditor(QDialog):
         self.save_ingredients_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.save_ingredients_button.clicked.connect(self.save_ingredients)  # type: ignore
 
-        self.add_row_button = QPushButton("+")
-        self.add_row_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.add_row_button.clicked.connect(self.add_row)  # type: ignore
-        lower_buttons_row.addWidget(self.add_row_button)
+        self.add_ingredient_button = QPushButton("+")
+        self.add_ingredient_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.add_ingredient_button.setMaximumWidth(30)
+        self.add_ingredient_button.clicked.connect(self.add_ingredient)  # type: ignore
 
-        lower_buttons_row.addWidget(self.save_name_button)
-        lower_buttons_row.addWidget(self.save_ingredients_button)
-        lower_buttons_row.addWidget(self.delete_meal_button)
+        main_buttons_row.addWidget(self.save_name_button)
+        main_buttons_row.addWidget(self.save_ingredients_button)
+        main_buttons_row.addWidget(self.delete_meal_button)
 
-        self.layout.addLayout(lower_buttons_row)
+        ingredient_button_row.addWidget(self.add_ingredient_button)
+
+        self.layout.addLayout(main_buttons_row)
+        self.layout.addWidget(QLabel("Koostisosad:"))
+        self.layout.addLayout(self.ingredients_row)
+        self.layout.addLayout(ingredient_button_row)
 
     def save_name(self):
         new_name = self.name_field.text()
@@ -79,30 +88,24 @@ class MealEditor(QDialog):
         self.close()
 
     def save_ingredients(self):
-        global row_amount
-        try:
-            for i in range(row_amount):
-                new_ingredient = self.ingredient_field.text()
-                meal = meal_repo.add_ingredient(
-                    ingredient=new_ingredient,
-                    weekday=self.weekday,
-                    meal_type=self.meal_type,
-                )
-                print(meal)
-                LOG.info(f"added ingredient: {new_ingredient}")
-                row_amount = 0
-        except:
-            row_amount = 0
+        for ingredient_row in self.ingredients.values():
+            ingredient = ingredient_row.itemAt(0).widget().text()
+            meal_repo.add_ingredient(ingredient, self.weekday, self.meal_type)
+            LOG.info(f"saving ingredient {ingredient}")
 
     # Ei tea kuidas saada, et koostisosa jäävad nähtavale
 
-    def add_row(self):
-        global row_amount
-        try:
-            row_amount += 1
-        except:
-            row_amount = 1
-        self.ingredients = QFormLayout()
-        self.ingredients.addRow("Koostisosa " + str(row_amount) + ":", QLineEdit())
-        self.layout.addLayout(self.ingredients)
-        LOG.info(f"added row")
+    def add_ingredient(self):
+        ingredient_row = QHBoxLayout()
+        ingredient_row.addWidget(QLineEdit())
+        delete_ingredient_button = QPushButton("x")
+        delete_ingredient_button.clicked.connect(self.delete_ingredient)
+        ingredient_row.addWidget(delete_ingredient_button)
+        self.ingredients[delete_ingredient_button] = ingredient_row
+        self.ingredients_row.addRow(ingredient_row)
+        LOG.info("ingredient added")
+
+    def delete_ingredient(self):
+        pushed_delete_ingredient_button = self.sender()
+        ingredient_row = self.ingredients.pop(pushed_delete_ingredient_button)
+        self.ingredients_row.removeRow(ingredient_row)
