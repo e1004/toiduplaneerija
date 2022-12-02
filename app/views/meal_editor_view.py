@@ -31,7 +31,7 @@ class MealEditor(QDialog):
 
         self.name_field = QLineEdit()
         self.ingredient_field = QLineEdit()
-        if meal and meal.name:
+        if meal.name:
             self.name_field.setText(meal.name)
         self.name_field.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.name_field.setMinimumSize(400, 10)
@@ -92,8 +92,6 @@ class MealEditor(QDialog):
             ingredient = ingredient_row.itemAt(0).widget().text()
             meal_repo.add_ingredient(ingredient, self.weekday, self.meal_type)
             LOG.info(f"saving ingredient {ingredient}")
-
-    # Ei tea kuidas saada, et koostisosa jäävad nähtavale
 
     def add_ingredient(self):
         ingredient_row = QHBoxLayout()
