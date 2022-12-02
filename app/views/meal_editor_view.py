@@ -24,11 +24,16 @@ class MealEditor(QDialog):
         self.parent_button = parent
         self.weekday = weekday
         self.meal_type = meal_type
-        self.ingredients: dict[QPushButton, QHBoxLayout] = {}
         self.setWindowTitle(weekday.capitalize() + " " + meal_type)
         self.layout: QVBoxLayout = QVBoxLayout()  # type: ignore
         self.setLayout(self.layout)
 
+        self.ingredients_row = QFormLayout()
+        self.ingredients: dict[QPushButton, QHBoxLayout] = {}
+        if meal.ingredients:
+            LOG.info(f"found existing ingredients: {meal.ingredients}")
+            for ingredient in meal.ingredients.split(meal_repo.INGREDIENT_SEPARATOR):
+                self.add_ingredient(ingredient)
         self.name_field = QLineEdit()
         self.ingredient_field = QLineEdit()
         if meal.name:
@@ -41,8 +46,6 @@ class MealEditor(QDialog):
         self.layout.addLayout(self.input_form)
         main_buttons_row = QHBoxLayout()
         ingredient_button_row = QHBoxLayout()
-        self.ingredients_row = QFormLayout()
-
         self.save_name_button = QPushButton("Salvesta nimi 💾")
         self.save_name_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.save_name_button.clicked.connect(self.save_name)  # type: ignore
@@ -93,11 +96,15 @@ class MealEditor(QDialog):
             meal_repo.add_ingredient(ingredient, self.weekday, self.meal_type)
             LOG.info(f"saving ingredient {ingredient}")
 
-    def add_ingredient(self):
+    def add_ingredient(self, ingredient: Optional[str] = None):
         ingredient_row = QHBoxLayout()
-        ingredient_row.addWidget(QLineEdit())
+        if ingredient:
+            ingredient_row.addWidget(QLineEdit(ingredient))
+        else:
+            ingredient_row.addWidget(QLineEdit())
         delete_ingredient_button = QPushButton("x")
-        delete_ingredient_button.clicked.connect(self.delete_ingredient)
+        delete_ingredient_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        delete_ingredient_button.clicked.connect(self.delete_ingredient)  # type: ignore
         ingredient_row.addWidget(delete_ingredient_button)
         self.ingredients[delete_ingredient_button] = ingredient_row
         self.ingredients_row.addRow(ingredient_row)
@@ -106,4 +113,6 @@ class MealEditor(QDialog):
     def delete_ingredient(self):
         pushed_delete_ingredient_button = self.sender()
         ingredient_row = self.ingredients.pop(pushed_delete_ingredient_button)
+        ingredient = ingredient_row.itemAt(0).widget().text()
+        meal_repo.remove_ingredient(ingredient, self.weekday, self.meal_type)
         self.ingredients_row.removeRow(ingredient_row)

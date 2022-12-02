@@ -76,6 +76,7 @@ def test_it_returns_none_for_missing_meal():
     # then
     assert result is None
 
+
 def test_it_adds_one_letter_ingredient_part_of_separator():
     # given
     ingredients = (letter for letter in meal.INGREDIENT_SEPARATOR)
