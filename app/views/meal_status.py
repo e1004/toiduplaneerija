@@ -71,3 +71,4 @@ class MealStatusView(QWidget):
         else:
             meal = self.weekday_and_type_to_meal[(weekday, meal_type)]
         MealEditor(weekday, meal_type, meal, parent=pressed_button).exec()
+        self.weekday_and_type_to_meal = meal_repo.read_all_meals()

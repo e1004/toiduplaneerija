@@ -1,2 +1,5 @@
 file
 meals.db
+.pytest_cache
+.mypy_cache
+*.py[cod]

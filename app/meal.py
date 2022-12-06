@@ -90,7 +90,7 @@ def add_ingredient(ingredient: str, weekday: str, meal_type: str) -> Optional[Me
             if existing_meal.ingredients is None:
                 new_ingredients = ingredient
             else:
-                if ingredient in existing_meal.ingredients:
+                if ingredient in existing_meal.ingredients.split(INGREDIENT_SEPARATOR):
                     return existing_meal
                 new_ingredients = (
                     existing_meal.ingredients + INGREDIENT_SEPARATOR + ingredient

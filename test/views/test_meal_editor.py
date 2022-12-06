@@ -134,3 +134,22 @@ def test_it_sets_parent_status_to_green_given_new_name(qtbot, mocker: MockerFixt
 
     # then
     assert parent.text() == "✅"
+
+
+def test_it_deletes_meal_and_closes(qtbot, mocker: MockerFixture):
+    # given
+    weekday = "any_weekday"
+    meal_type = "any_meal_type"
+    meal = Meal(name="any_name", ingredients=None, weekday=weekday, meal_type=meal_type)
+    parent = QPushButton()
+    editor = MealEditor(weekday, meal_type, meal, parent=parent)
+    delete_meal = mocker.patch.object(meal_repo, "delete_meal")
+    editor_close = mocker.spy(editor, "close")
+
+    # when
+    qtbot.mouseClick(editor.delete_meal_button, Qt.MouseButton.LeftButton)
+
+    # then
+    assert parent.text() == "❌"
+    delete_meal.assert_called_once_with(weekday=weekday, meal_type=meal_type)
+    editor_close.assert_called_once()

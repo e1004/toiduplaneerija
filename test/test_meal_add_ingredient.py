@@ -75,3 +75,27 @@ def test_it_returns_none_for_missing_meal():
 
     # then
     assert result is None
+
+
+def test_it_adds_one_letter_ingredient_part_of_separator():
+    # given
+    ingredients = (letter for letter in meal.INGREDIENT_SEPARATOR)
+    any_weekday = "esmaspäev"
+    any_meal_type = "õhtu"
+    meal.add_empty_meal(any_weekday, any_meal_type)
+
+    # when
+    for ingredient in ingredients:
+        result = meal.add_ingredient(ingredient, any_weekday, any_meal_type)
+
+    # then
+    assert result.ingredients == (
+        f"-{meal.INGREDIENT_SEPARATOR}"
+        f"s{meal.INGREDIENT_SEPARATOR}"
+        f"e{meal.INGREDIENT_SEPARATOR}"
+        f"p{meal.INGREDIENT_SEPARATOR}"
+        f"a{meal.INGREDIENT_SEPARATOR}"
+        f"r{meal.INGREDIENT_SEPARATOR}"
+        f"t{meal.INGREDIENT_SEPARATOR}"
+        f"o"
+    )
